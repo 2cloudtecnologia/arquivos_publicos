@@ -1,27 +1,23 @@
 DIR="/etc/zabbix/zabbix_agentd.d"
-HOSTNAMECTL="command -v hostnamectl"
+
+ctl() {
+    if hash hostnamectl 2>/dev/null; then
+        cd $DIR
+        wget https://raw.githubusercontent.com/2cloudtecnologia/arquivos_publicos/main/os.conf -O os.conf
+        systemctl restart zabbix-agent
+        zabbix_agentd -t os.info
+    else
+        cd $DIR
+        wget https://raw.githubusercontent.com/2cloudtecnologia/arquivos_publicos/main/os_centos6.conf -O os.conf
+        service zabbix-agent restart
+        zabbix_agentd -t os.info
+    fi
+}
+
 
 if [ -d "$DIR" ]; then
-    if ! command -v hostnamectl &> /dev/null
-    then
-        echo "UserParameter=os.info,cat /etc/redhat-release" > $DIR/os.conf
-        systemctl restart zabbix-agent
-        zabbix_agentd -t os.info
-    else
-        echo "UserParameter=os.info,hostnamectl | awk 'NR==7{ print substr($0, index($0,$3)) }'" > $DIR/os.conf
-        systemctl restart zabbix-agent
-        zabbix_agentd -t os.info
-    fi
+    ctl
 else
-    DIRALT="/etc/zabbix/zabbix_agentd.conf.d"
-    if ! command -v hostnamectl &> /dev/null
-    then
-        echo "UserParameter=os.info,cat /etc/redhat-release" > $DIRALT/os.conf
-        systemctl restart zabbix-agent
-        zabbix_agentd -t os.info
-    else
-        echo "UserParameter=os.info,hostnamectl | awk 'NR==7{ print substr($0, index($0,$3)) }'" > $DIRALT/os.conf
-        systemctl restart zabbix-agent
-        zabbix_agentd -t os.info
-    fi
+    DIR="/etc/zabbix/zabbix_agentd.conf.d"
+    ctl
 fi

@@ -1,4 +1,7 @@
 #!/bin/bash
+
+
+# teste
 for CPU_DIR in /sys/devices/system/cpu/cpu[0-9]*
 do
     CPU=${CPU_DIR##*/}

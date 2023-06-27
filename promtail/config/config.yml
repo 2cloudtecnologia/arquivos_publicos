@@ -1,0 +1,72 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki.2cloud.com.br:31000/loki/api/v1/push
+  # Caso seja um servidor interno da rede da 2Cloud, remover comentário abaixo E COMENTAR LINHA ACIMA!!!!!!
+  #- url: http://192.168.251.15:3100/loki/api/v1/push
+
+
+# Configurações de coleta de logs abaixo
+# Remova as partes comentadas caso queira configurar uma coleta
+scrape_configs:
+
+# - job_name: Apache
+#   static_configs:
+#   - targets:
+#       - "" # Inserir o IP privado do servidor
+#     labels:
+#       job: Apache
+#       # Alterar linha comentada de acordo com distro Linux
+#       __path__: /var/log/apache2/*log
+#       #__path__: /var/log/httpd/*log
+
+- job_name: Docker
+  static_configs:
+  docker_sd_configs:
+    - host: unix:///var/run/docker.sock
+      refresh_interval: 5s
+  relabel_configs:
+    - source_labels: ['__meta_docker_container_name']
+      regex: '/(.*)'
+      target_label: 'container'
+    - source_labels: ['__meta_docker_container_log_stream']
+      target_label: 'logstream'
+    - source_labels: ['__meta_docker_container_label_logging_jobname']
+      target_label: 'job'
+
+# - job_name: MySQL
+#   static_configs:
+#   - targets:
+#       - "" # Inserir o IP privado do servidor
+#     labels:
+#       job: MySQL
+#       __path__: /var/log/mysql/*log
+
+# - job_name: Nginx
+#   static_configs:
+#   - targets:
+#       - "" # Inserir o IP privado do servidor
+#     labels:
+#       job: Nginx
+#       __path__: /var/log/nginx/*log
+
+# - job_name: System
+#   static_configs:
+#   - targets:
+#       - "" # Inserir o IP privado do servidor
+#     labels:
+#       job: Varlogs
+#       __path__: /var/log/*log
+
+- job_name: Zabbix
+  static_configs:
+  - targets:
+      - "" # Inserir o IP privado do servidor
+    labels:
+      job: Zabbix
+      __path__: /var/log/zabbix/*log

@@ -1,0 +1,22 @@
+version: "2.3"
+
+services:
+  agent:
+    image: grafana/promtail:2.8.0
+    ports:
+      - "9080:9080"
+    cpus: "0.5"
+    mem_limit: "256mb"
+    restart: "unless-stopped"
+    volumes:
+      - /var/log:/var/log
+      - ./config/config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: 
+      - --config.file=/etc/promtail/config.yml
+      # Configuração de labels abaixo para identificação de Host e cliente no Grafana
+      - --client.external-labels=Hostname=HOSTNAME,Cliente=CLIENTE
+      # Trocar valor de Hostname para o mesmo no arquivo de configuração do Zabbix. Hostname=<Hostname>
+      # e Cliente com o nome do cliente do Host Group do Zabbix. Ex.: Cliente/<NomeDoCliente>/...
+    

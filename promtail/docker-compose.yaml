@@ -3,6 +3,7 @@ version: "2.3"
 services:
   agent:
     image: grafana/promtail:2.8.0
+    container_name: 2cloud-promtail
     ports:
       - "9080:9080"
     cpus: "0.5"
